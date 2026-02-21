@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(export PATH=\"$HOME/.local/node/bin:$PATH\" && echo \"no\" | pnpm create next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-pnpm 2>&1)",
+      "Bash(export PATH=\"$HOME/.local/node/bin:$PATH\" && yes \"\" | pnpm create next-app@latest /Users/vinhpersonal/dev/projects/book_highlights --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-pnpm 2>&1)",
+      "Bash(export PATH=\"$HOME/.local/node/bin:$PATH\" && pnpm add better-sqlite3 drizzle-orm @tanstack/react-query @tanstack/react-query-devtools 2>&1)"
+    ]
+  }
+}
