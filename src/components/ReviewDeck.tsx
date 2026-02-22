@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useReviewCards } from "@/hooks/useReviewCards";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -19,6 +20,7 @@ const grades = [
 export function ReviewDeck() {
   const { data: cards, isLoading, isError, refetch } = useReviewCards();
   const queryClient = useQueryClient();
+  const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [grading, setGrading] = useState(false);
 
@@ -100,7 +102,10 @@ export function ReviewDeck() {
         Card {currentIndex + 1} of {total}
       </p>
 
-      <Card className="w-full max-w-lg">
+      <Card
+        className="w-full max-w-lg cursor-pointer transition-colors hover:bg-muted/50"
+        onClick={() => router.push(`/highlights/${currentCard.id}`)}
+      >
         <CardHeader className="flex flex-row flex-wrap items-center gap-2">
           <Badge variant="secondary">{currentCard.book.title}</Badge>
           <span className="text-sm text-muted-foreground">
@@ -117,7 +122,7 @@ export function ReviewDeck() {
             </p>
           )}
         </CardContent>
-        <CardFooter className="flex flex-wrap justify-center gap-2">
+        <CardFooter className="flex flex-wrap justify-center gap-2" onClick={(e) => e.stopPropagation()}>
           {grades.map((g) => (
             <Button
               key={g.value}
