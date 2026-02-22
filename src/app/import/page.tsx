@@ -1,7 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SyncButton } from "@/components/SyncButton";
+import { getAllBooks, getHighlights } from "@/lib/db/queries";
 
 export default function ImportPage() {
+  const books = getAllBooks();
+  const { total: highlightCount } = getHighlights(undefined, 1, 1);
+  const hasData = highlightCount > 0;
+
   return (
     <div className="flex flex-col items-center gap-8 py-8">
       <div className="text-center">
@@ -10,6 +15,25 @@ export default function ImportPage() {
           Sync your Kindle highlights to start reviewing them.
         </p>
       </div>
+
+      {hasData && (
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-base">Current Library</CardTitle>
+            <CardDescription>Last synced data from Kindle</CardDescription>
+          </CardHeader>
+          <CardContent className="flex gap-8">
+            <div>
+              <p className="text-2xl font-bold">{books.length}</p>
+              <p className="text-sm text-muted-foreground">Books</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{highlightCount}</p>
+              <p className="text-sm text-muted-foreground">Highlights</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
@@ -20,29 +44,6 @@ export default function ImportPage() {
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
           <SyncButton />
-        </CardContent>
-      </Card>
-
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-base">Setup Required</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          <p>
-            To sync highlights, add your Amazon Kindle cookies to{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-              .env.local
-            </code>
-            :
-          </p>
-          <pre className="mt-3 overflow-x-auto rounded-md bg-muted p-3 text-xs">
-{`KINDLE_COOKIE="your-cookie-string"
-KINDLE_CSRF_TOKEN="your-csrf-token"`}
-          </pre>
-          <p className="mt-3">
-            You can find these values in your browser&apos;s developer tools while
-            logged in to read.amazon.com.
-          </p>
         </CardContent>
       </Card>
     </div>
