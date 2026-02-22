@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const limit = parseInt(searchParams.get("limit") || "20", 10);
   const bookId = searchParams.get("bookId");
 
-  const result = getHighlights(
+  const result = await getHighlights(
     bookId ? parseInt(bookId, 10) : undefined,
     page,
     limit
@@ -33,8 +33,8 @@ export async function POST(request: NextRequest) {
       const { title, author, text, location, clippedAt } = item;
       if (!title || !author || !text) continue;
 
-      const book = upsertBook(title, author);
-      upsertHighlight(book.id, text, location || null, clippedAt || null);
+      const book = await upsertBook(title, author);
+      await upsertHighlight(book.id, text, location || null, clippedAt || null);
       imported++;
     }
 

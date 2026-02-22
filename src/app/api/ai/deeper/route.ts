@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const highlight = getHighlightById(highlightId);
+    const highlight = await getHighlightById(highlightId);
     if (!highlight) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
@@ -31,7 +31,7 @@ Highlight: "${highlight.text}"`;
       { role: "user", content: prompt },
     ]);
 
-    saveDeeperInsight(highlightId, insight as string);
+    await saveDeeperInsight(highlightId, insight as string);
 
     return NextResponse.json({ insight });
   } catch (error) {

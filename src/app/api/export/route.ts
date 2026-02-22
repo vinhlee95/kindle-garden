@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { getHighlightsForExport } from "@/lib/db/queries";
 
 function slugify(text: string): string {
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const bookId = searchParams.get("bookId");
 
-  const highlights = getHighlightsForExport(
+  const highlights = await getHighlightsForExport(
     bookId ? parseInt(bookId, 10) : undefined
   );
 

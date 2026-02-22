@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const highlight = getHighlightById(highlightId);
+    const highlight = await getHighlightById(highlightId);
     if (!highlight) {
       return new Response(JSON.stringify({ error: "Not found" }), {
         status: 404,
@@ -26,10 +26,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Save user message
-    saveChatMessage(highlightId, "user", message);
+    await saveChatMessage(highlightId, "user", message);
 
     // Build conversation history
-    const history = getChatMessages(highlightId);
+    const history = await getChatMessages(highlightId);
     const systemPrompt = `You are a knowledgeable reading companion. The user is discussing a highlight from "${highlight.book.title}" by ${highlight.book.author}. The highlight is: "${highlight.text}". Help the user explore and understand this passage more deeply. Be conversational, insightful, and concise.`;
 
     const messages = [
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 
           // Save assistant message after streaming completes
           if (fullContent) {
-            saveChatMessage(highlightId, "assistant", fullContent);
+            await saveChatMessage(highlightId, "assistant", fullContent);
           }
 
           controller.enqueue(

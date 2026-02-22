@@ -1,10 +1,10 @@
 import { db } from "./index";
 import { books, highlights, chatMessages } from "./schema";
-import { eq, and, lte, sql, count } from "drizzle-orm";
+import { eq, and, lte, count } from "drizzle-orm";
 import type { SM2State } from "@/lib/sm2";
 
-export function upsertBook(title: string, author: string) {
-  const existing = db
+export async function upsertBook(title: string, author: string) {
+  const existing = await db
     .select()
     .from(books)
     .where(and(eq(books.title, title), eq(books.author, author)))
@@ -12,16 +12,16 @@ export function upsertBook(title: string, author: string) {
 
   if (existing) return existing;
 
-  return db.insert(books).values({ title, author }).returning().get();
+  return (await db.insert(books).values({ title, author }).returning().get())!;
 }
 
-export function upsertHighlight(
+export async function upsertHighlight(
   bookId: number,
   text: string,
   location: string | null,
   clippedAt: string | null
 ) {
-  const existing = db
+  const existing = await db
     .select()
     .from(highlights)
     .where(and(eq(highlights.bookId, bookId), eq(highlights.text, text)))
@@ -30,19 +30,19 @@ export function upsertHighlight(
   if (existing) return existing;
 
   const today = new Date().toISOString().split("T")[0];
-  return db
+  return (await db
     .insert(highlights)
     .values({ bookId, text, location, clippedAt, nextReview: today })
     .returning()
-    .get();
+    .get())!;
 }
 
-export function getHighlights(bookId?: number, page = 1, limit = 20) {
+export async function getHighlights(bookId?: number, page = 1, limit = 20) {
   const offset = (page - 1) * limit;
 
   const conditions = bookId ? eq(highlights.bookId, bookId) : undefined;
 
-  const rows = db
+  const rows = await db
     .select({
       highlight: highlights,
       book: books,
@@ -54,7 +54,7 @@ export function getHighlights(bookId?: number, page = 1, limit = 20) {
     .offset(offset)
     .all();
 
-  const totalResult = db
+  const totalResult = await db
     .select({ count: count() })
     .from(highlights)
     .where(conditions)
@@ -70,8 +70,8 @@ export function getHighlights(bookId?: number, page = 1, limit = 20) {
   };
 }
 
-export function getHighlightById(id: number) {
-  const row = db
+export async function getHighlightById(id: number) {
+  const row = await db
     .select({
       highlight: highlights,
       book: books,
@@ -83,7 +83,7 @@ export function getHighlightById(id: number) {
 
   if (!row) return null;
 
-  const messages = db
+  const messages = await db
     .select()
     .from(chatMessages)
     .where(eq(chatMessages.highlightId, id))
@@ -92,8 +92,8 @@ export function getHighlightById(id: number) {
   return { ...row.highlight, book: row.book, chatMessages: messages };
 }
 
-export function updateHighlightReview(id: number, state: SM2State) {
-  db.update(highlights)
+export async function updateHighlightReview(id: number, state: SM2State) {
+  await db.update(highlights)
     .set({
       easeFactor: state.easeFactor,
       interval: state.interval,
@@ -104,10 +104,10 @@ export function updateHighlightReview(id: number, state: SM2State) {
     .run();
 }
 
-export function getReviewCards(limit = 3) {
+export async function getReviewCards(limit = 3) {
   const today = new Date().toISOString().split("T")[0];
 
-  return db
+  const rows = await db
     .select({
       highlight: highlights,
       book: books,
@@ -116,45 +116,46 @@ export function getReviewCards(limit = 3) {
     .innerJoin(books, eq(highlights.bookId, books.id))
     .where(lte(highlights.nextReview, today))
     .limit(limit)
-    .all()
-    .map((r) => ({ ...r.highlight, book: r.book }));
+    .all();
+
+  return rows.map((r) => ({ ...r.highlight, book: r.book }));
 }
 
-export function saveDeeperInsight(highlightId: number, insight: string) {
-  db.update(highlights)
+export async function saveDeeperInsight(highlightId: number, insight: string) {
+  await db.update(highlights)
     .set({ deeperInsight: insight })
     .where(eq(highlights.id, highlightId))
     .run();
 }
 
-export function saveChatMessage(
+export async function saveChatMessage(
   highlightId: number,
   role: string,
   content: string
 ) {
-  return db
+  return (await db
     .insert(chatMessages)
     .values({ highlightId, role, content })
     .returning()
-    .get();
+    .get())!;
 }
 
-export function getChatMessages(highlightId: number) {
-  return db
+export async function getChatMessages(highlightId: number) {
+  return await db
     .select()
     .from(chatMessages)
     .where(eq(chatMessages.highlightId, highlightId))
     .all();
 }
 
-export function getAllBooks() {
-  return db.select().from(books).all();
+export async function getAllBooks() {
+  return await db.select().from(books).all();
 }
 
-export function getHighlightsForExport(bookId?: number) {
+export async function getHighlightsForExport(bookId?: number) {
   const conditions = bookId ? eq(highlights.bookId, bookId) : undefined;
 
-  return db
+  const rows = await db
     .select({
       highlight: highlights,
       book: books,
@@ -162,6 +163,7 @@ export function getHighlightsForExport(bookId?: number) {
     .from(highlights)
     .innerJoin(books, eq(highlights.bookId, books.id))
     .where(conditions)
-    .all()
-    .map((r) => ({ ...r.highlight, book: r.book }));
+    .all();
+
+  return rows.map((r) => ({ ...r.highlight, book: r.book }));
 }

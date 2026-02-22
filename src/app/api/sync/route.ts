@@ -10,11 +10,11 @@ export async function POST() {
     let highlightsCount = 0;
 
     for (const kindleBook of data.books) {
-      const book = upsertBook(kindleBook.title, kindleBook.author);
+      const book = await upsertBook(kindleBook.title, kindleBook.author);
       booksCount++;
 
       for (const h of kindleBook.highlights) {
-        upsertHighlight(book.id, h.text, h.location, h.date);
+        await upsertHighlight(book.id, h.text, h.location, h.date);
         highlightsCount++;
       }
     }

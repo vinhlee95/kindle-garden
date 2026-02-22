@@ -8,7 +8,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const highlight = getHighlightById(parseInt(id, 10));
+  const highlight = await getHighlightById(parseInt(id, 10));
 
   if (!highlight) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -34,7 +34,7 @@ export async function PATCH(
       );
     }
 
-    const highlight = getHighlightById(highlightId);
+    const highlight = await getHighlightById(highlightId);
     if (!highlight) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
@@ -49,7 +49,7 @@ export async function PATCH(
       grade
     );
 
-    updateHighlightReview(highlightId, newState);
+    await updateHighlightReview(highlightId, newState);
 
     return NextResponse.json({ success: true, ...newState });
   } catch (error) {

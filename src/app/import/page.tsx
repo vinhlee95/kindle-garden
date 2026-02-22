@@ -2,9 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { SyncButton } from "@/components/SyncButton";
 import { getAllBooks, getHighlights } from "@/lib/db/queries";
 
-export default function ImportPage() {
-  const books = getAllBooks();
-  const { total: highlightCount } = getHighlights(undefined, 1, 1);
+export default async function ImportPage() {
+  const books = await getAllBooks();
+  const { total: highlightCount } = await getHighlights(undefined, 1, 1);
   const hasData = highlightCount > 0;
 
   return (

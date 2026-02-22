@@ -18,6 +18,8 @@ pnpm drizzle-kit studio     # Open Drizzle Studio (DB GUI)
 ## Environment Setup
 
 Copy `.env.local.example` to `.env.local` and fill in:
+- `TURSO_DATABASE_URL` — libSQL database URL (use `file:./data/highlights.db` for local dev, or `libsql://...` for Turso)
+- `TURSO_AUTH_TOKEN` — auth token from Turso dashboard (not needed for local file)
 - `OPENROUTER_API_KEY` — required for AI features (chat, deeper insight generation)
 - `OPENROUTER_MODEL` — defaults to `google/gemini-2.5-flash`
 - `KINDLE_COOKIES` — browser cookies for read.amazon.com (required for Kindle sync)
@@ -28,9 +30,9 @@ This is a Next.js 16 app for reviewing Kindle highlights using spaced repetition
 
 ### Data Layer
 
-- **Database**: SQLite via `better-sqlite3` + Drizzle ORM, stored at `./data/highlights.db`
+- **Database**: SQLite via `@libsql/client` + Drizzle ORM (Turso-hosted in production, local file for dev)
 - **Schema** (`src/lib/db/schema.ts`): Three tables — `books`, `highlights` (with SM-2 fields: `easeFactor`, `interval`, `repetitions`, `nextReview`), and `chat_messages`
-- **Queries** (`src/lib/db/queries.ts`): All DB access goes through synchronous query functions (better-sqlite3 is synchronous). No ORM query builders in route handlers — always use functions from this file.
+- **Queries** (`src/lib/db/queries.ts`): All DB access goes through async query functions. No ORM query builders in route handlers — always use functions from this file.
 - **Migrations**: Stored in `./drizzle/`. Run `drizzle-kit generate` after schema changes, then `drizzle-kit migrate`.
 
 ### API Routes (`src/app/api/`)
