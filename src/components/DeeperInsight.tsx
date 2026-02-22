@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Lightbulb } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useDeeperInsight } from "@/hooks/useDeeperInsight";
@@ -55,10 +54,12 @@ export function DeeperInsight({ highlightId, existingInsight }: DeeperInsightPro
             </ReactMarkdown>
           </div>
         ) : mutation.isPending ? (
-          <div className="flex flex-col gap-2">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
+          <div className="flex justify-start">
+            <div className="rounded-lg bg-emerald-50 px-3 py-2.5 flex gap-1 items-center">
+              <span className="size-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:0ms]" />
+              <span className="size-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:150ms]" />
+              <span className="size-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:300ms]" />
+            </div>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3 py-2">
