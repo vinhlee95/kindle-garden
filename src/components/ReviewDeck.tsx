@@ -116,11 +116,6 @@ export function ReviewDeck() {
           <blockquote className="border-l-4 border-primary/30 pl-4 text-lg leading-relaxed">
             {currentCard.text}
           </blockquote>
-          {currentCard.location && (
-            <p className="mt-3 text-xs text-muted-foreground">
-              Location: {currentCard.location}
-            </p>
-          )}
         </CardContent>
         <CardFooter className="flex flex-wrap justify-center gap-2" onClick={(e) => e.stopPropagation()}>
           {grades.map((g) => (

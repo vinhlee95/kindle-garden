@@ -84,7 +84,6 @@ export default function HighlightDetailPage() {
               {data.text}
             </blockquote>
             <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-              {data.location && <span>Location: {data.location}</span>}
               {data.clippedAt && (
                 <span>Clipped: {new Date(data.clippedAt).toLocaleDateString()}</span>
               )}
