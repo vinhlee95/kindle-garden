@@ -102,9 +102,9 @@ export function ReviewDeck() {
 
       <Card className="w-full max-w-lg">
         <CardHeader className="flex flex-row flex-wrap items-center gap-2">
-          <Badge variant="secondary">{currentCard.bookTitle}</Badge>
+          <Badge variant="secondary">{currentCard.book.title}</Badge>
           <span className="text-sm text-muted-foreground">
-            {currentCard.author}
+            {currentCard.book.author}
           </span>
         </CardHeader>
         <CardContent>

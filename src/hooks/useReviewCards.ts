@@ -5,9 +5,11 @@ import { useQuery } from "@tanstack/react-query";
 export interface ReviewCard {
   id: number;
   text: string;
-  bookTitle: string;
-  author: string;
   location: string | null;
+  book: {
+    title: string;
+    author: string;
+  };
 }
 
 export function useReviewCards() {
