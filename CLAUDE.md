@@ -17,12 +17,14 @@ pnpm drizzle-kit studio     # Open Drizzle Studio (DB GUI)
 
 ## Environment Setup
 
-Copy `.env.local.example` to `.env.local` and fill in:
+Copy `.env.local.example` to `.env` and fill in:
 - `TURSO_DATABASE_URL` — libSQL database URL (use `file:./data/highlights.db` for local dev, or `libsql://...` for Turso)
 - `TURSO_AUTH_TOKEN` — auth token from Turso dashboard (not needed for local file)
 - `OPENROUTER_API_KEY` — required for AI features (chat, deeper insight generation)
 - `OPENROUTER_MODEL` — defaults to `google/gemini-2.5-flash`
 - `KINDLE_COOKIES` — browser cookies for read.amazon.com (required for Kindle sync)
+
+**Note:** The project uses `.env` (not `.env.local`) as the environment file.
 
 ## Architecture
 
@@ -73,3 +75,13 @@ TanStack Query (`@tanstack/react-query`) manages all server state. The `Provider
 ### UI
 
 Shadcn/ui components (Radix UI primitives + Tailwind). Component config in `components.json`. Tailwind v4 with `@tailwindcss/postcss`.
+
+## Production Infrastructure
+
+- **Hosting**: Vercel — project `book_highlights` under `vinhdev12-gmailcoms-projects`
+  - Project ID: `prj_BpaaguZilLQ3FKaFACCmqCkf7qCV`
+  - Org ID: `team_JfLZBUnJx2pOzJPbspeglzb0`
+- **Database**: Turso — `kindle-garden` db at `libsql://kindle-garden-vinhle.aws-ap-northeast-1.turso.io`
+- **CD**: GitHub Actions (`.github/workflows/deploy.yml`) triggers on push to `main`
+  - Required GitHub secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
+  - Required Vercel env vars: `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `KINDLE_COOKIES`

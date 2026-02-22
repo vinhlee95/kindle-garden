@@ -14,10 +14,11 @@ A personal app for growing your Kindle highlights into lasting knowledge. Sync h
 ## Stack
 
 - [Next.js 16](https://nextjs.org) (App Router)
-- [SQLite](https://www.sqlite.org) via `better-sqlite3` + [Drizzle ORM](https://orm.drizzle.team)
+- [Turso](https://turso.tech) (hosted SQLite) via `@libsql/client` + [Drizzle ORM](https://orm.drizzle.team)
 - [TanStack Query](https://tanstack.com/query) for client state
 - [shadcn/ui](https://ui.shadcn.com) + Tailwind v4
 - [OpenRouter](https://openrouter.ai) for AI (defaults to `google/gemini-2.5-flash`)
+- Deployed on [Vercel](https://vercel.com) via GitHub Actions CD
 
 ## Getting Started
 
@@ -30,13 +31,15 @@ pnpm install
 ### 2. Configure environment
 
 ```bash
-cp .env.local.example .env.local
+cp .env.local.example .env
 ```
 
 Fill in:
 
 | Variable | Required | Description |
 |---|---|---|
+| `TURSO_DATABASE_URL` | Yes | `libsql://...` for Turso, or `file:./data/highlights.db` for local dev |
+| `TURSO_AUTH_TOKEN` | Yes (Turso) | Auth token from Turso dashboard |
 | `OPENROUTER_API_KEY` | Yes (AI features) | Your OpenRouter API key |
 | `OPENROUTER_MODEL` | No | Defaults to `google/gemini-2.5-flash` |
 | `KINDLE_COOKIES` | Yes (Kindle sync) | Browser cookies from read.amazon.com |
@@ -46,7 +49,7 @@ To get `KINDLE_COOKIES`: log into [read.amazon.com/notebook](https://read.amazon
 ### 3. Set up the database
 
 ```bash
-pnpm drizzle-kit migrate
+pnpm drizzle-kit push   # push schema to Turso (or local file)
 ```
 
 ### 4. Run the dev server
@@ -59,10 +62,16 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Database
 
-SQLite database is stored at `./data/highlights.db`. After changing `src/lib/db/schema.ts`, run:
+Uses [Turso](https://turso.tech) (hosted SQLite) in production. For local dev, set `TURSO_DATABASE_URL=file:./data/highlights.db` to use a local file instead.
+
+After changing `src/lib/db/schema.ts`, run:
 
 ```bash
 pnpm drizzle-kit generate   # generate migration
-pnpm drizzle-kit migrate    # apply migration
+pnpm drizzle-kit push       # apply schema to Turso
 pnpm drizzle-kit studio     # open DB GUI
 ```
+
+## Deployment
+
+Deployed to Vercel via GitHub Actions on every push to `main`. Required GitHub secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`.
