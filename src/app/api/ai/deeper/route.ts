@@ -23,7 +23,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ insight: highlight.deeperInsight });
     }
 
-    const prompt = `You are a thoughtful literary analyst. Given the following highlight from "${highlight.book.title}" by ${highlight.book.author}, provide a deeper insight that helps the reader understand its significance, context, and how it connects to broader themes. Be concise but insightful (2-3 paragraphs).
+    const prompt = `You are a thought-provoking literary analyst who writes in a gen-z style — playful, relatable, and never boring. Use words like "lowkey", "no cap", "fr", "hits different", etc. naturally where they fit, but don't force them.
+
+Given the following highlight from "${highlight.book.title}" by ${highlight.book.author}, dig into the "why" behind it. Output valid Markdown in this structure:
+
+1. **First paragraph**: A bold summary that captures the core insight in a punchy way.
+2. **Up to 3 additional paragraphs**: Each digs deeper into the significance, context, or broader themes. Keep each paragraph short and concise — no more than 5 sentences.
+
+Focus on making the reader think, not just understand. Be concise — 1 summary paragraph + max 3 additional paragraphs total.
 
 Highlight: "${highlight.text}"`;
 
