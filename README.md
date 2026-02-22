@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# kindle-garden
+
+A personal app for growing your Kindle highlights into lasting knowledge. Sync highlights from your Kindle library, review them with spaced repetition (SM-2), and deepen your understanding with AI-powered chat.
+
+## Features
+
+- **Kindle sync** — pull highlights directly from read.amazon.com
+- **Spaced repetition** — SM-2 flashcard review so you see highlights at the right time
+- **AI chat** — ask questions about any highlight using an LLM via OpenRouter
+- **Deeper insights** — generate and save an AI-written deeper analysis per highlight
+- **Browse & filter** — view all highlights, filterable by book
+- **Export** — download your highlights as JSON or Markdown
+
+## Stack
+
+- [Next.js 16](https://nextjs.org) (App Router)
+- [SQLite](https://www.sqlite.org) via `better-sqlite3` + [Drizzle ORM](https://orm.drizzle.team)
+- [TanStack Query](https://tanstack.com/query) for client state
+- [shadcn/ui](https://ui.shadcn.com) + Tailwind v4
+- [OpenRouter](https://openrouter.ai) for AI (defaults to `google/gemini-2.5-flash`)
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install dependencies
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cp .env.local.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Fill in:
 
-## Learn More
+| Variable | Required | Description |
+|---|---|---|
+| `OPENROUTER_API_KEY` | Yes (AI features) | Your OpenRouter API key |
+| `OPENROUTER_MODEL` | No | Defaults to `google/gemini-2.5-flash` |
+| `KINDLE_COOKIES` | Yes (Kindle sync) | Browser cookies from read.amazon.com |
 
-To learn more about Next.js, take a look at the following resources:
+To get `KINDLE_COOKIES`: log into [read.amazon.com/notebook](https://read.amazon.com/notebook) in your browser, open DevTools → Network, copy the `Cookie` header from any request.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Set up the database
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm drizzle-kit migrate
+```
 
-## Deploy on Vercel
+### 4. Run the dev server
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open [http://localhost:3000](http://localhost:3000).
+
+## Database
+
+SQLite database is stored at `./data/highlights.db`. After changing `src/lib/db/schema.ts`, run:
+
+```bash
+pnpm drizzle-kit generate   # generate migration
+pnpm drizzle-kit migrate    # apply migration
+pnpm drizzle-kit studio     # open DB GUI
+```
