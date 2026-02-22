@@ -10,8 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface Highlight {
   id: number;
   text: string;
-  bookTitle: string;
-  author: string;
+  book: { id: number; title: string; author: string };
   location: string | null;
 }
 
@@ -110,8 +109,8 @@ export default function HighlightsPage() {
                 key={h.id}
                 id={h.id}
                 text={h.text}
-                bookTitle={h.bookTitle}
-                author={h.author}
+                bookTitle={h.book.title}
+                author={h.book.author}
                 location={h.location}
               />
             ))}
