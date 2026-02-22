@@ -30,23 +30,23 @@ check_pattern() {
   local label="$1"
   local pattern="$2"
   local matches
-  matches=$(git diff --cached -U0 2>/dev/null | grep -nE "^\+" | grep -E "$pattern" | grep -v "^\+\+\+" | head -5)
+  matches=$(git diff --cached -U0 2>/dev/null | grep -n "^+" | grep -E "$pattern" | grep -v "^+++" | head -5)
   if [[ -n "$matches" ]]; then
     ERRORS+=("Blocked: possible $label detected in staged changes")
   fi
 }
 
 # Generic high-entropy secret assignments (VAR=<long-value> or VAR: <long-value>)
-check_pattern "secret assignment" '(TOKEN|SECRET|PASSWORD|API_KEY|AUTH_TOKEN|PRIVATE_KEY|ACCESS_KEY|COOKIE)\s*[=:]\s*["\x27]?.{20,}'
+check_pattern "secret assignment" '(TOKEN|SECRET|PASSWORD|API_KEY|AUTH_TOKEN|PRIVATE_KEY|ACCESS_KEY|COOKIE)[[:space:]]*[=:][[:space:]]*["\x27]?.{20,}'
 
 # Project-specific env var names
-check_pattern "TURSO_AUTH_TOKEN" 'TURSO_AUTH_TOKEN\s*[=:]'
-check_pattern "OPENROUTER_API_KEY" 'OPENROUTER_API_KEY\s*[=:]'
-check_pattern "KINDLE_COOKIES" 'KINDLE_COOKIES\s*[=:]'
+check_pattern "TURSO_AUTH_TOKEN" 'TURSO_AUTH_TOKEN[[:space:]]*[=:]'
+check_pattern "OPENROUTER_API_KEY" 'OPENROUTER_API_KEY[[:space:]]*[=:]'
+check_pattern "KINDLE_COOKIES" 'KINDLE_COOKIES[[:space:]]*[=:]'
 
 # AWS keys
 check_pattern "AWS access key" 'AKIA[0-9A-Z]{16}'
-check_pattern "AWS secret key" 'aws_secret_access_key\s*[=:]'
+check_pattern "AWS secret key" 'aws_secret_access_key[[:space:]]*[=:]'
 
 # Common token prefixes
 check_pattern "GitHub token" 'ghp_[0-9A-Za-z]{36}'
