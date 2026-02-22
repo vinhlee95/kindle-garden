@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Sets up a Claude Code worktree to share node_modules, data, and .env.local
 # from the main repo so you can start dev immediately without reinstalling.
+# Also creates a worktree-specific .claude/launch.json on the next free port >= 3001.
 #
 # Usage (from the worktree directory):
 #   bash ../../.claude/setup-worktree.sh
@@ -42,6 +43,33 @@ link() {
 link node_modules
 link data
 link .env.local
+
+# Create a worktree-specific launch.json on the next free port >= 3001
+# so it never collides with the main dev server (port 3000) or other worktrees.
+mkdir -p "$WORKTREE/.claude"
+LAUNCH="$WORKTREE/.claude/launch.json"
+if [ -e "$LAUNCH" ]; then
+  echo "  ok    .claude/launch.json  (already exists)"
+else
+  PORT=3001
+  while lsof -iTCP:"$PORT" -sTCP:LISTEN -t >/dev/null 2>&1; do
+    PORT=$((PORT + 1))
+  done
+  cat > "$LAUNCH" <<JSON
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev", "--port", "$PORT"],
+      "port": $PORT
+    }
+  ]
+}
+JSON
+  echo "  write .claude/launch.json  (port $PORT)"
+fi
 
 echo ""
 echo "Done. Run 'pnpm dev' inside the worktree to start."
