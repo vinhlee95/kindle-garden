@@ -7,14 +7,16 @@ import { Input } from "@/components/ui/input";
 import { MessageCircle, Send } from "lucide-react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { useChat } from "@/hooks/useChat";
+import { cn } from "@/lib/utils";
 
 interface ChatPanelProps {
   highlightId: number;
   initialMessages: { id: number; role: string; content: string; createdAt: string }[];
+  sidebar?: boolean;
 }
 
-export function ChatPanel({ highlightId, initialMessages }: ChatPanelProps) {
-  const { messages, streaming, sendMessage } = useChat(highlightId, initialMessages);
+export function ChatPanel({ highlightId, initialMessages, sidebar }: ChatPanelProps) {
+  const { messages, streaming, thinking, sendMessage } = useChat(highlightId, initialMessages);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -23,7 +25,7 @@ export function ChatPanel({ highlightId, initialMessages }: ChatPanelProps) {
       top: scrollRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages]);
+  }, [messages, thinking]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,19 +36,22 @@ export function ChatPanel({ highlightId, initialMessages }: ChatPanelProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className={cn(sidebar && "h-full flex flex-col")}>
+      <CardHeader className="shrink-0">
         <CardTitle className="flex items-center gap-2 text-base">
           <MessageCircle className="size-4" />
           Chat about this highlight
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3">
+      <CardContent className={cn("flex flex-col gap-3", sidebar && "flex-1 min-h-0")}>
         <div
           ref={scrollRef}
-          className="flex max-h-80 flex-col gap-2 overflow-y-auto"
+          className={cn(
+            "flex flex-col gap-2 overflow-y-auto",
+            sidebar ? "flex-1 min-h-0 -mx-6 px-6" : "max-h-80"
+          )}
         >
-          {messages.length === 0 && (
+          {messages.length === 0 && !thinking && (
             <p className="py-4 text-center text-sm text-muted-foreground">
               Ask a question about this highlight to start a conversation.
             </p>
@@ -54,9 +59,18 @@ export function ChatPanel({ highlightId, initialMessages }: ChatPanelProps) {
           {messages.map((msg) => (
             <ChatMessage key={msg.id} role={msg.role} content={msg.content} />
           ))}
+          {thinking && (
+            <div className="flex justify-start">
+              <div className="rounded-lg bg-emerald-50 px-3 py-2.5 flex gap-1 items-center">
+                <span className="size-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:0ms]" />
+                <span className="size-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:150ms]" />
+                <span className="size-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:300ms]" />
+              </div>
+            </div>
+          )}
         </div>
 
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <form onSubmit={handleSubmit} className="flex gap-2 shrink-0">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}

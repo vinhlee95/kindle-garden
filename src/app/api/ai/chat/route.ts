@@ -55,30 +55,31 @@ export async function POST(request: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
+          let rawBuffer = "";
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split("\n");
+            rawBuffer += decoder.decode(value, { stream: true });
+            const lines = rawBuffer.split("\n");
+            rawBuffer = lines.pop() ?? "";
 
             for (const line of lines) {
-              if (line.startsWith("data: ")) {
-                const data = line.slice(6).trim();
-                if (data === "[DONE]") continue;
+              if (!line.startsWith("data: ")) continue;
+              const data = line.slice(6).trim();
+              if (data === "[DONE]") continue;
 
-                try {
-                  const parsed = JSON.parse(data);
-                  const content = parsed.choices?.[0]?.delta?.content;
-                  if (content) {
-                    fullContent += content;
-                    controller.enqueue(
-                      new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`)
-                    );
-                  }
-                } catch {
-                  // skip unparseable chunks
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices?.[0]?.delta?.content;
+                if (content) {
+                  fullContent += content;
+                  controller.enqueue(
+                    new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`)
+                  );
                 }
+              } catch {
+                // skip unparseable chunks
               }
             }
           }

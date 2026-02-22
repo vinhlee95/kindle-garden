@@ -12,6 +12,7 @@ interface ChatMsg {
 export function useChat(highlightId: number, initialMessages: ChatMsg[]) {
   const [messages, setMessages] = useState<ChatMsg[]>(initialMessages);
   const [streaming, setStreaming] = useState(false);
+  const [thinking, setThinking] = useState(false);
 
   const sendMessage = useCallback(
     async (message: string) => {
@@ -23,6 +24,7 @@ export function useChat(highlightId: number, initialMessages: ChatMsg[]) {
       };
       setMessages((prev) => [...prev, userMsg]);
       setStreaming(true);
+      setThinking(true);
 
       try {
         const res = await fetch("/api/ai/chat", {
@@ -47,6 +49,7 @@ export function useChat(highlightId: number, initialMessages: ChatMsg[]) {
         const reader = res.body?.getReader();
         if (!reader) {
           const data = await res.json();
+          setThinking(false);
           setMessages((prev) =>
             prev.map((m) =>
               m.id === assistantMsg.id ? { ...m, content: data.content } : m
@@ -58,6 +61,7 @@ export function useChat(highlightId: number, initialMessages: ChatMsg[]) {
         const decoder = new TextDecoder();
         let rawBuffer = "";
         let extractedContent = "";
+        let firstToken = true;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -74,6 +78,10 @@ export function useChat(highlightId: number, initialMessages: ChatMsg[]) {
             try {
               const parsed = JSON.parse(data);
               if (parsed.content) {
+                if (firstToken) {
+                  setThinking(false);
+                  firstToken = false;
+                }
                 extractedContent += parsed.content;
                 setMessages((prev) =>
                   prev.map((m) =>
@@ -89,6 +97,7 @@ export function useChat(highlightId: number, initialMessages: ChatMsg[]) {
           }
         }
       } catch (err) {
+        setThinking(false);
         const errorMsg: ChatMsg = {
           id: Date.now() + 2,
           role: "assistant",
@@ -97,11 +106,12 @@ export function useChat(highlightId: number, initialMessages: ChatMsg[]) {
         };
         setMessages((prev) => [...prev, errorMsg]);
       } finally {
+        setThinking(false);
         setStreaming(false);
       }
     },
     [highlightId]
   );
 
-  return { messages, streaming, sendMessage };
+  return { messages, streaming, thinking, sendMessage };
 }
