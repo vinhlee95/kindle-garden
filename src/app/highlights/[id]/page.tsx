@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,6 +24,8 @@ interface HighlightDetail {
 
 export default function HighlightDetailPage() {
   const params = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const fromReview = searchParams.get("from") === "review";
 
   const { data, isLoading, isError, refetch } = useQuery<HighlightDetail>({
     queryKey: ["highlight", params.id],
@@ -63,9 +65,9 @@ export default function HighlightDetailPage() {
       <div className="flex flex-col gap-6 lg:overflow-y-auto lg:py-4">
         <div>
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/highlights">
+            <Link href={fromReview ? "/" : "/highlights"}>
               <ArrowLeft className="size-4" />
-              Back to highlights
+              {fromReview ? "Back to daily review" : "Back to highlights"}
             </Link>
           </Button>
         </div>

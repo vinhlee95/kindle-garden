@@ -104,7 +104,7 @@ export function ReviewDeck() {
 
       <Card
         className="w-full max-w-lg cursor-pointer transition-colors hover:bg-muted/50"
-        onClick={() => router.push(`/highlights/${currentCard.id}`)}
+        onClick={() => router.push(`/highlights/${currentCard.id}?from=review`)}
       >
         <CardHeader className="flex flex-row flex-wrap items-center gap-2">
           <Badge variant="secondary">{currentCard.book.title}</Badge>
