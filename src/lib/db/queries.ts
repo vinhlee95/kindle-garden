@@ -71,23 +71,17 @@ export async function getHighlights(bookId?: number, page = 1, limit = 20) {
 }
 
 export async function getHighlightById(id: number) {
-  const row = await db
-    .select({
-      highlight: highlights,
-      book: books,
-    })
-    .from(highlights)
-    .innerJoin(books, eq(highlights.bookId, books.id))
-    .where(eq(highlights.id, id))
-    .get();
+  const [row, messages] = await Promise.all([
+    db
+      .select({ highlight: highlights, book: books })
+      .from(highlights)
+      .innerJoin(books, eq(highlights.bookId, books.id))
+      .where(eq(highlights.id, id))
+      .get(),
+    db.select().from(chatMessages).where(eq(chatMessages.highlightId, id)).all(),
+  ]);
 
   if (!row) return null;
-
-  const messages = await db
-    .select()
-    .from(chatMessages)
-    .where(eq(chatMessages.highlightId, id))
-    .all();
 
   return { ...row.highlight, book: row.book, chatMessages: messages };
 }

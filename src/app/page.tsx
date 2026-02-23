@@ -1,6 +1,8 @@
+import { getReviewCards } from "@/lib/db/queries";
 import { ReviewDeck } from "@/components/ReviewDeck";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const initialCards = await getReviewCards(3);
   return (
     <div className="flex flex-col items-center gap-8 py-8">
       <div className="text-center">
@@ -9,7 +11,7 @@ export default function HomePage() {
           Swipe through today&apos;s highlights.
         </p>
       </div>
-      <ReviewDeck />
+      <ReviewDeck initialCards={initialCards} />
     </div>
   );
 }

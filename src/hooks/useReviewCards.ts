@@ -12,7 +12,7 @@ export interface ReviewCard {
   };
 }
 
-export function useReviewCards() {
+export function useReviewCards(initialData?: ReviewCard[]) {
   return useQuery<ReviewCard[]>({
     queryKey: ["review"],
     queryFn: async () => {
@@ -20,5 +20,6 @@ export function useReviewCards() {
       if (!res.ok) throw new Error("Failed to fetch review cards");
       return res.json();
     },
+    initialData,
   });
 }
