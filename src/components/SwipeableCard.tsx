@@ -20,6 +20,7 @@ interface SwipeableCardProps {
   disabled?: boolean;
   onDragStart?: () => void;
   onDragEnd?: () => void;
+  onDragMove?: (direction: "left" | "right" | null) => void;
 }
 
 const SWIPE_THRESHOLD = 0.4; // 40% of card width
@@ -29,7 +30,7 @@ const TAP_MOVEMENT_LIMIT = 8; // px — movement below this counts as a tap
 const MIN_DRAG_DURATION = 80; // ms — reject very fast flicks
 
 export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>(
-  function SwipeableCard({ children, onSwipe, onTap, disabled, onDragStart, onDragEnd }, ref) {
+  function SwipeableCard({ children, onSwipe, onTap, disabled, onDragStart, onDragEnd, onDragMove }, ref) {
     const cardRef = useRef<HTMLDivElement>(null);
     const dragState = useRef({
       isDragging: false,
@@ -57,6 +58,8 @@ export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>
         const cleanup = () => {
           isAnimatingRef.current = false;
           onSwipe(direction);
+          onDragEnd?.();
+          onDragMove?.(null);
         };
 
         const fallbackTimeout = setTimeout(cleanup, FLY_OFF_DURATION + 100);
@@ -70,7 +73,7 @@ export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>
           { once: true }
         );
       },
-      [onSwipe]
+      [onSwipe, onDragEnd, onDragMove]
     );
 
     const snapBack = useCallback(() => {
@@ -147,6 +150,7 @@ export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>
           if (absDeltaX > absDeltaY * 1.2) {
             state.directionLocked = "horizontal";
             onDragStart?.();
+            onDragMove?.(deltaX < 0 ? "left" : "right");
           } else {
             state.directionLocked = "vertical";
             // Abort drag — let browser handle vertical scroll
@@ -162,6 +166,7 @@ export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>
         e.preventDefault();
 
         state.currentDeltaX = deltaX;
+        onDragMove?.(deltaX < 0 ? "left" : "right");
         const rotation = deltaX * 0.05;
 
         const card = cardRef.current;
@@ -201,7 +206,6 @@ export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>
         }
 
         wasDragging.current = true;
-        onDragEnd?.();
 
         const cardWidth = card.offsetWidth;
         const thresholdMet = absDeltaX > cardWidth * SWIPE_THRESHOLD;
@@ -211,17 +215,20 @@ export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>
           const direction = deltaX < 0 ? "left" : "right";
           flyOff(direction);
         } else {
+          onDragEnd?.();
+          onDragMove?.(null);
           snapBack();
         }
       },
-      [flyOff, snapBack, onTap, onDragEnd]
+      [flyOff, snapBack, onTap, onDragEnd, onDragMove]
     );
 
     const handlePointerCancel = useCallback(() => {
       dragState.current.isDragging = false;
       onDragEnd?.();
+      onDragMove?.(null);
       snapBack();
-    }, [snapBack, onDragEnd]);
+    }, [snapBack, onDragEnd, onDragMove]);
 
     const handleClick = useCallback(
       (e: React.MouseEvent) => {

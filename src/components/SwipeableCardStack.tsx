@@ -36,8 +36,10 @@ export function SwipeableCardStack({
   swipeRef,
 }: SwipeableCardStackProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [dragDirection, setDragDirection] = useState<"left" | "right" | null>(null);
   const handleDragStart = useCallback(() => setIsDragging(true), []);
-  const handleDragEnd = useCallback(() => setIsDragging(false), []);
+  const handleDragEnd = useCallback(() => { setIsDragging(false); setDragDirection(null); }, []);
+  const handleDragMove = useCallback((direction: "left" | "right" | null) => setDragDirection(direction), []);
 
   // Calculate visible card indices (current + up to 2 behind)
   const visibleIndices: number[] = [];
@@ -62,6 +64,7 @@ export function SwipeableCardStack({
                 disabled={disabled}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
+                onDragMove={handleDragMove}
               >
                 {renderCard(cardIndex)}
               </SwipeableCard>
@@ -75,8 +78,15 @@ export function SwipeableCardStack({
 
         // First card behind (stackPosition 1): render real content only while
         // the top card is being dragged (so it peeks through during a swipe).
+        // The peeked card depends on drag direction:
+        //   - dragging left  → reveal next card (currentIndex + 1)
+        //   - dragging right → reveal previous card (currentIndex - 1)
         // Further cards (stackPosition 2+): always render empty shells.
         const showContent = stackPosition === 1 && isDragging;
+        const peekIndex =
+          showContent && dragDirection === "right" && currentIndex > 0
+            ? currentIndex - 1
+            : cardIndex;
 
         return (
           <div
@@ -92,7 +102,7 @@ export function SwipeableCardStack({
               pointerEvents: "none",
             }}
           >
-            {showContent ? renderCard(cardIndex) : <Card className="h-full w-full" />}
+            {showContent ? renderCard(peekIndex) : <Card className="h-full w-full" />}
           </div>
         );
       })}
