@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, type RefObject } from "react";
+import { type ReactNode, type RefObject, useState, useCallback } from "react";
 import {
   SwipeableCard,
   type SwipeableCardHandle,
@@ -35,6 +35,10 @@ export function SwipeableCardStack({
   disabled,
   swipeRef,
 }: SwipeableCardStackProps) {
+  const [isDragging, setIsDragging] = useState(false);
+  const handleDragStart = useCallback(() => setIsDragging(true), []);
+  const handleDragEnd = useCallback(() => setIsDragging(false), []);
+
   // Calculate visible card indices (current + up to 2 behind)
   const visibleIndices: number[] = [];
   for (let i = 0; i < MAX_VISIBLE && currentIndex + i < count; i++) {
@@ -56,6 +60,8 @@ export function SwipeableCardStack({
                 onSwipe={onSwipe}
                 onTap={onTap}
                 disabled={disabled}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
               >
                 {renderCard(cardIndex)}
               </SwipeableCard>
@@ -67,10 +73,10 @@ export function SwipeableCardStack({
         const translateY = stackPosition * 8;
         const opacity = stackPosition >= 2 ? 0.6 : 0.8;
 
-        // First card behind (stackPosition 1): render real content so it's
-        // visible when the top card is dragged away.
-        // Further cards (stackPosition 2+): render empty shells.
-        const showContent = stackPosition === 1;
+        // First card behind (stackPosition 1): render real content only while
+        // the top card is being dragged (so it peeks through during a swipe).
+        // Further cards (stackPosition 2+): always render empty shells.
+        const showContent = stackPosition === 1 && isDragging;
 
         return (
           <div
