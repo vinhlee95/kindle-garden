@@ -18,6 +18,8 @@ interface SwipeableCardProps {
   onSwipe: (direction: "left" | "right") => void;
   onTap?: () => void;
   disabled?: boolean;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
 }
 
 const SWIPE_THRESHOLD = 0.4; // 40% of card width
@@ -27,7 +29,7 @@ const TAP_MOVEMENT_LIMIT = 8; // px — movement below this counts as a tap
 const MIN_DRAG_DURATION = 80; // ms — reject very fast flicks
 
 export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>(
-  function SwipeableCard({ children, onSwipe, onTap, disabled }, ref) {
+  function SwipeableCard({ children, onSwipe, onTap, disabled, onDragStart, onDragEnd }, ref) {
     const cardRef = useRef<HTMLDivElement>(null);
     const dragState = useRef({
       isDragging: false,
@@ -144,10 +146,12 @@ export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>
 
           if (absDeltaX > absDeltaY * 1.2) {
             state.directionLocked = "horizontal";
+            onDragStart?.();
           } else {
             state.directionLocked = "vertical";
             // Abort drag — let browser handle vertical scroll
             state.isDragging = false;
+            onDragEnd?.();
             return;
           }
         }
@@ -165,7 +169,7 @@ export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>
           card.style.transform = `translateX(${deltaX}px) rotate(${rotation}deg)`;
         }
       },
-      []
+      [onDragStart, onDragEnd]
     );
 
     const handlePointerUp = useCallback(
@@ -197,6 +201,7 @@ export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>
         }
 
         wasDragging.current = true;
+        onDragEnd?.();
 
         const cardWidth = card.offsetWidth;
         const thresholdMet = absDeltaX > cardWidth * SWIPE_THRESHOLD;
@@ -209,13 +214,14 @@ export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>
           snapBack();
         }
       },
-      [flyOff, snapBack, onTap]
+      [flyOff, snapBack, onTap, onDragEnd]
     );
 
     const handlePointerCancel = useCallback(() => {
       dragState.current.isDragging = false;
+      onDragEnd?.();
       snapBack();
-    }, [snapBack]);
+    }, [snapBack, onDragEnd]);
 
     const handleClick = useCallback(
       (e: React.MouseEvent) => {
