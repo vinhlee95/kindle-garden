@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, real, uniqueIndex, index } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
 export const books = sqliteTable(
@@ -33,7 +33,10 @@ export const highlights = sqliteTable(
     nextReview: text("next_review"),
     deeperInsight: text("deeper_insight"),
   },
-  (table) => [uniqueIndex("highlights_book_text_idx").on(table.bookId, table.text)]
+  (table) => [
+    uniqueIndex("highlights_book_text_idx").on(table.bookId, table.text),
+    index("highlights_next_review_idx").on(table.nextReview),
+  ]
 );
 
 export const chatMessages = sqliteTable("chat_messages", {

@@ -1,0 +1,1 @@
+CREATE INDEX `highlights_next_review_idx` ON `highlights` (`next_review`);

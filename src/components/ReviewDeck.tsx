@@ -17,8 +17,12 @@ type CardItem =
   | { type: "review"; card: ReviewCard }
   | { type: "caught_up" };
 
-export function ReviewDeck() {
-  const { data: cards, isLoading, isError, refetch } = useReviewCards();
+interface ReviewDeckProps {
+  initialCards?: ReviewCard[];
+}
+
+export function ReviewDeck({ initialCards }: ReviewDeckProps) {
+  const { data: cards, isLoading, isError, refetch } = useReviewCards(initialCards);
   const queryClient = useQueryClient();
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
