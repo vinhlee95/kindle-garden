@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/", label: "Review", icon: Brain },
+  { href: "/", label: "Today", icon: Brain },
+  { href: "/highlights", label: "Your Garden", icon: BookOpen },
   { href: "/import", label: "Import", icon: Upload },
-  { href: "/highlights", label: "Browse", icon: BookOpen },
   { href: "/export", label: "Export", icon: Download },
 ];
 
@@ -22,7 +22,7 @@ export function NavBar() {
     <nav className="border-b bg-background">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
         <Link href="/" className="text-lg font-semibold tracking-tight">
-          Book Highlights
+          Kindle Garden
         </Link>
 
         {/* Desktop nav */}

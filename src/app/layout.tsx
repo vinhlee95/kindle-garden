@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Book Highlights",
+  title: "Kindle Garden",
   description: "Review and study your Kindle highlights with spaced repetition",
 };
 
