@@ -148,7 +148,7 @@ export function ReviewDeck() {
               {card.book.author}
             </span>
           </CardHeader>
-          <CardContent className="min-h-0 flex-1 overflow-y-auto">
+          <CardContent className="min-h-0 flex-1 overflow-hidden">
             <blockquote className="border-l-4 border-primary/30 pl-4 text-lg leading-relaxed">
               {card.text}
             </blockquote>

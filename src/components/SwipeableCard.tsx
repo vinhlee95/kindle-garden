@@ -107,7 +107,7 @@ export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>
       (e: ReactPointerEvent<HTMLDivElement>) => {
         if (disabled || isAnimatingRef.current) return;
         // Only handle primary pointer (left mouse / single touch)
-        if (e.button !== 0) return;
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
 
         const card = cardRef.current;
         if (!card) return;
@@ -244,7 +244,7 @@ export const SwipeableCard = forwardRef<SwipeableCardHandle, SwipeableCardProps>
         onPointerCancel={handlePointerCancel}
         onClick={handleClick}
         style={{
-          touchAction: "pan-y",
+          touchAction: "none",
           userSelect: "none",
           willChange: "transform",
         }}
