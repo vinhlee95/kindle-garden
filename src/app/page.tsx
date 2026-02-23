@@ -6,7 +6,7 @@ export default function HomePage() {
       <div className="text-center">
         <h1 className="text-3xl font-bold tracking-tight">Daily Review</h1>
         <p className="mt-2 text-muted-foreground">
-          Review your highlights using spaced repetition.
+          Swipe through today&apos;s highlights.
         </p>
       </div>
       <ReviewDeck />
